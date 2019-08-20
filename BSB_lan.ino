@@ -1254,12 +1254,13 @@ void printSINT(byte *msg,byte data_len, long multiplier, const char *postfix){
  *
  * *************************************************************** */
 void printDWORD(byte *msg,byte data_len,long divider, const char *postfix){
-  long lval;
-  char *p=outBuf+outBufLen;
-
   if(data_len == 5){
+    char *p=outBuf+outBufLen;
     if(msg[pl_start]==0){
-      lval=((long(msg[pl_start+1])<<24)+(long(msg[pl_start+2])<<16)+(long(msg[pl_start+3])<<8)+long(msg[pl_start+4]))/divider;
+      // interpret 4 bytes beginning at pl_start+1 as uint32
+      long lval=*reinterpret_cast<uint32_t*>(msg[pl_start+1]);
+      // do floating point division with rounding to next integer
+      lval=(long)((double)lval/(double)divider+0.5);
       outBufLen+=sprintf(outBuf+outBufLen,"%ld",lval);
     } else {
       outBufLen+=sprintf(outBuf+outBufLen,"---");
